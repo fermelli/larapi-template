@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4c4cf496d9d3c98087d0542103c013c4",
+    "content-hash": "671290f1479a6ea65e2a74e8806545c3",
     "packages": [
         {
             "name": "brick/math",
@@ -2103,6 +2103,54 @@
                 }
             ],
             "time": "2022-10-17T15:20:29+00:00"
+        },
+        {
+            "name": "one2tek/larapi",
+            "version": "2.0.11",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/one2tek/larapi.git",
+                "reference": "bc70565db5b0f787a6c431cbebe973887e263f0f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/one2tek/larapi/zipball/bc70565db5b0f787a6c431cbebe973887e263f0f",
+                "reference": "bc70565db5b0f787a6c431cbebe973887e263f0f",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/support": "~5.6.0|~5.7.0|~5.8.0|^6.0|^7.0|^8.0|^9.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "one2tek\\larapi\\Providers\\LarapiServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "one2tek\\larapi\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Gentrit Abazi",
+                    "email": "gentritabazi01@gmail.com"
+                }
+            ],
+            "description": "Modern API development in Laravel.",
+            "homepage": "https://github.com/one2tek/larapi",
+            "support": {
+                "issues": "https://github.com/one2tek/larapi/issues",
+                "source": "https://github.com/one2tek/larapi/tree/2.0.11"
+            },
+            "time": "2022-04-20T13:24:49+00:00"
         },
         {
             "name": "phpoption/phpoption",

@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 
@@ -28,14 +29,7 @@ class RouteServiceProvider extends ServiceProvider
     {
         $this->configureRateLimiting();
 
-        $this->routes(function () {
-            Route::middleware('api')
-                ->prefix('api')
-                ->group(base_path('routes/api.php'));
-
-            Route::middleware('web')
-                ->group(base_path('routes/web.php'));
-        });
+        Route::pattern('id', '[0-9]+');
     }
 
     /**
@@ -48,5 +42,54 @@ class RouteServiceProvider extends ServiceProvider
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
+    }
+
+    /**
+     * Define the routes for the application.
+     *
+     * @param  \Illuminate\Routing\Router  $router
+     * @return void
+     */
+    public function map(Router $router)
+    {
+        $extraRoutes = config('larapi.extra_routes');
+
+        $highLevelParts = array_map(function ($namespace) {
+            return glob(sprintf('%s%s*', $namespace, DIRECTORY_SEPARATOR), GLOB_ONLYDIR);
+        }, config('larapi.extra_routes_namespaces'));
+
+        foreach ($highLevelParts as $part => $partComponents) {
+            foreach ($partComponents as $componentRoot) {
+                $component = substr($componentRoot, strrpos($componentRoot, DIRECTORY_SEPARATOR) + 1);
+
+                $namespace = sprintf(
+                    '%s\\%s\\Controllers',
+                    $part,
+                    $component
+                );
+
+                foreach ($extraRoutes as $routeName => $route) {
+                    $path = sprintf('%s/%s.php', $componentRoot, $routeName);
+
+                    if (!file_exists($path)) {
+                        continue;
+                    }
+
+                    $namespace = sprintf(
+                        '%s\\%s\\' . $route['namespace'],
+                        $part,
+                        $component
+                    );
+
+                    $router->group([
+                        'middleware' => $route['middleware'],
+                        'namespace' => $namespace,
+                        'prefix' => $route['prefix']
+                    ], function ($router) use ($path) {
+                        require $path;
+                    });
+                }
+            }
+        }
     }
 }

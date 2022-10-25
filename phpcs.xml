@@ -15,6 +15,7 @@
         <exclude-pattern>/app/Http/Resources/*\.php</exclude-pattern>
         <exclude-pattern>/routes/*\.php</exclude-pattern>
         <exclude-pattern>/Providers/RouteServiceProvider.php</exclude-pattern>
+        <exclude-pattern>/app/ExceptionsFormatters/UnprocessableEntityHttpExceptionFormatter.php</exclude-pattern>
     </rule>
     <rule ref="Generic.CodeAnalysis.UselessOverridingMethod"/>
     <rule ref="Generic.Commenting.DocComment">
