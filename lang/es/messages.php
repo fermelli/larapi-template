@@ -8,5 +8,5 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'validation_failed' => 'Validation failed.',
+    'validation_failed' => 'Validación fallida.',
 ];
