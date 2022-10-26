@@ -9,4 +9,8 @@ return [
     */
 
     'validation_failed' => 'Validation failed.',
+
+    'not_found' => [
+        'users' => 'The user was not found.',
+    ],
 ];
