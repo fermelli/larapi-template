@@ -50,7 +50,7 @@ class UsuarioActualizarTest extends TestCase
     }
 
 
-    public function test_atributo_name_esta_presente_y_no_vacio()
+    public function test_atributo_name_si_esta_presente_no_esta_vacio()
     {
         $usuario = Usuario::factory()->create();
 
@@ -127,7 +127,7 @@ class UsuarioActualizarTest extends TestCase
             ]);
     }
 
-    public function test_atributo_email_esta_presente_y_no_vacio()
+    public function test_atributo_email_si_esta_presente_no_esta_vacio()
     {
         $usuario = Usuario::factory()->create();
 
@@ -174,6 +174,162 @@ class UsuarioActualizarTest extends TestCase
                 'errors' => [
                     'email' => [
                         trans('validation.unique', ['attribute' => 'email']),
+                    ],
+                ]
+            ]);
+    }
+
+    public function test_atributo_email_es_un_email_valido()
+    {
+        $usuario = Usuario::factory()->create(['email' => 'email@email.com']);
+
+        $datosDeUsuarioActualizados = Usuario::factory()->raw(['email' => 'email_invalido']);
+
+        $this->assertDatabaseHas('usuarios', $usuario->toArray());
+
+        $usuarioId = $usuario->getRouteKey();
+
+        $response = $this->putJson(route('usuarios.update', $usuarioId), $datosDeUsuarioActualizados);
+
+        $response->assertUnprocessable()
+            ->assertExactJson([
+                'success' => false,
+                'status' => 422,
+                'message' => trans('messages.validation_failed'),
+                'errors' => [
+                    'email' => [
+                        trans('validation.email', ['attribute' => 'email']),
+                    ],
+                ]
+            ]);
+    }
+
+    public function test_atributo_email_tiene_tamano_maximo()
+    {
+        $longitudMaxima = 255;
+
+        $usuario = Usuario::factory()->create(['email' => 'email@email.com']);
+
+        $datosDeUsuarioActualizados = Usuario::factory()->raw(['email' => Str::random($longitudMaxima + 1) . '@email.com']);
+
+        $this->assertDatabaseHas('usuarios', $usuario->toArray());
+
+        $usuarioId = $usuario->getRouteKey();
+
+        $response = $this->putJson(route('usuarios.update', $usuarioId), $datosDeUsuarioActualizados);
+
+        $response->assertUnprocessable()
+            ->assertExactJson([
+                'success' => false,
+                'status' => 422,
+                'message' => trans('messages.validation_failed'),
+                'errors' => [
+                    'email' => [
+                        trans('validation.max.string', ['attribute' => 'email', 'max' => $longitudMaxima]),
+                    ],
+                ]
+            ]);
+    }
+
+    public function test_atributo_password_si_esta_presente_no_esta_vacio()
+    {
+        $usuario = Usuario::factory()->create();
+
+        $datosDeUsuarioActualizados = Usuario::factory()->raw(['password' => '']);
+
+        $this->assertDatabaseHas('usuarios', $usuario->toArray());
+
+        $usuarioId = $usuario->getRouteKey();
+
+        $response = $this->putJson(route('usuarios.update', $usuarioId), $datosDeUsuarioActualizados);
+
+        $response->assertUnprocessable()
+            ->assertExactJson([
+                'success' => false,
+                'status' => 422,
+                'message' => trans('messages.validation_failed'),
+                'errors' => [
+                    'password' => [
+                        trans('validation.filled', ['attribute' => 'password']),
+                    ],
+                ]
+            ]);
+    }
+
+    public function test_atributo_password_es_una_cadena()
+    {
+        $usuario = Usuario::factory()->create();
+
+        $datosDeUsuarioActualizados = Usuario::factory()->raw(['password' => 12345678]);
+
+        $this->assertDatabaseHas('usuarios', $usuario->toArray());
+
+        $usuarioId = $usuario->getRouteKey();
+
+        $response = $this->putJson(route('usuarios.update', $usuarioId), $datosDeUsuarioActualizados);
+
+        $response->assertUnprocessable()
+            ->assertExactJson([
+                'success' => false,
+                'status' => 422,
+                'message' => trans('messages.validation_failed'),
+                'errors' => [
+                    'password' => [
+                        trans('validation.string', ['attribute' => 'password']),
+                    ],
+                ]
+            ]);
+    }
+
+    public function test_atributo_password_tiene_tamano_minimo()
+    {
+        $longitudMinima = 8;
+
+        $usuario = Usuario::factory()->create();
+
+        $datosDeUsuarioActualizados = Usuario::factory()->raw(['password' => Str::random($longitudMinima - 1)]);
+
+        $this->assertDatabaseHas('usuarios', $usuario->toArray());
+
+        $usuarioId = $usuario->getRouteKey();
+
+        $response = $this->putJson(route('usuarios.update', $usuarioId), $datosDeUsuarioActualizados);
+
+        $response->assertUnprocessable()
+            ->assertExactJson([
+                'success' => false,
+                'status' => 422,
+                'message' => trans('messages.validation_failed'),
+                'errors' => [
+                    'password' => [
+                        trans('validation.min.string', ['attribute' => 'password', 'min' => $longitudMinima]),
+                    ],
+                ]
+            ]);
+    }
+
+    public function test_atributo_password_tiene_tamano_maximo()
+    {
+        $longitudMaxima = 255;
+
+        $usuario = Usuario::factory()->create();
+
+        $datosDeUsuarioActualizados = Usuario::factory()->raw(['password' => Str::random($longitudMaxima + 1)]);
+
+        $this->assertDatabaseHas('usuarios', $usuario->toArray());
+
+        $usuarioId = $usuario->getRouteKey();
+
+        $response = $this->putJson(route('usuarios.update', $usuarioId), $datosDeUsuarioActualizados);
+
+        $response->assertUnprocessable()
+            ->assertExactJson([
+                'success' => false,
+                'status' => 422,
+                'message' => trans('messages.validation_failed'),
+                'errors' => [
+                    'password' => [
+                        trans('validation.max.string', ['attribute' => 'password', 'max' => $longitudMaxima]),
                     ],
                 ]
             ]);

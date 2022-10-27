@@ -7,7 +7,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
-class UsuarioGuardarTest extends TestCase
+class UsuarioCrearTest extends TestCase
 {
     use RefreshDatabase;
 
