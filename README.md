@@ -71,9 +71,9 @@ Se pueden realizar correcciones automaticamente ejecutando:
 
 Adicionalmente se cuenta con un hook para el pre-commit (antes del commit) que verifica que se siguen la reglas establecidas.
 
-````bash
-php artisan vendor:publish --provider="Mreduar\LaravelPhpcs\LaravelPhpcsServiceProvider" --tag="hook"```
-````
+```bash
+php artisan vendor:publish --provider="Mreduar\LaravelPhpcs\LaravelPhpcsServiceProvider" --tag="hook"
+```
 
 ## Idioma
 
