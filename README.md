@@ -1,5 +1,7 @@
 # Plantilla Larapi
 
+Basado en [laravel-api-starter](https://github.com/gentritabazi01/laravel-api-starter) de [Gentrit Abazi](https://github.com/gentritabazi01).
+
 ## Dependencias
 
 ### LARAPI
@@ -9,6 +11,8 @@
 #### Documentación
 
 [Larapi - Build fast API-s in Laravel.](https://one2tek.github.io/larapi/#/)
+
+![Larapi](pic.png?raw=true "Larapi")
 
 #### Estructura de carpetas
 
