@@ -6,14 +6,14 @@ return [
 
     'extra_routes' => [
         'routes' => [
-            'middleware' => ['api'],
+            'middleware' => ['api', 'auth:sanctum'],
             'namespace' => 'Controllers',
             'prefix' => 'api',
         ],
         'routes_public' => [
-            'middleware' => [],
+            'middleware' => ['api'],
             'namespace' => 'Controllers',
-            'prefix' => null
+            'prefix' => 'api'
         ],
     ],
 
@@ -23,6 +23,7 @@ return [
 
     'exceptions_formatters' => [
         Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException::class => App\ExceptionsFormatters\UnprocessableEntityHttpExceptionFormatter::class,
+        Illuminate\Auth\AuthenticationException::class => App\ExceptionsFormatters\AuthorizationExceptionFormatter::class,
         Throwable::class => one2tek\larapi\ExceptionsFormatters\ExceptionFormatter::class
     ]
 ];

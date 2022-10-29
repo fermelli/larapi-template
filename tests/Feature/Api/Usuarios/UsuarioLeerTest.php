@@ -4,17 +4,22 @@ namespace Tests\Feature\Api\Usuarios;
 
 use Api\Usuarios\Models\Usuario;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class UsuarioLeerTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_puedo_obtener_un_usuario()
+    public function test_como_usuario_autenticado_puedo_obtener_un_usuario()
     {
+        Sanctum::actingAs(Usuario::factory()->create());
+
         $usuario = Usuario::factory()->create();
 
-        $response = $this->getJson(route('usuarios.show', $usuario->getRouteKey()));
+        $usuarioId = $usuario->getRouteKey();
+
+        $response = $this->getJson(route('usuarios.show', $usuarioId));
 
         $response->assertOk()
             ->assertExactJson([
@@ -29,9 +34,25 @@ class UsuarioLeerTest extends TestCase
             ]);
     }
 
-    public function test_no_se_encuentra_usuario()
+    public function test_como_usuario_no_autenticado_no_puedo_obtener_un_usuario()
     {
         $usuarioId = 1;
+
+        $response = $this->getJson(route('usuarios.show', $usuarioId));
+
+        $response->assertUnauthorized()
+            ->assertExactJson([
+                "success" => false,
+                "status" => 401,
+                "message" => trans('auth.unauthenticated'),
+            ]);
+    }
+
+    public function test_no_se_encuentra_usuario()
+    {
+        Sanctum::actingAs(Usuario::factory()->create());
+
+        $usuarioId = 10000;
 
         $response = $this->getJson(route('usuarios.show', $usuarioId));
 
@@ -43,15 +64,19 @@ class UsuarioLeerTest extends TestCase
             ]);
     }
 
-    public function test_puedo_obtener_todos_los_usuarios()
+    public function test_como_usuario_autenticado_puedo_obtener_todos_los_usuarios()
     {
+        $usuarioAutenticado = Usuario::factory()->create();
+
+        Sanctum::actingAs($usuarioAutenticado);
+
         $usuarios = Usuario::factory()->count(3)->create();
 
         $response = $this->getJson(route('usuarios.index'));
 
         $response->assertOk()
             ->assertExactJson([
-                'total_data' => count($usuarios),
+                'total_data' => count($usuarios) + 1,
                 'rows' => [
                     [
                         'id' => $usuarios[2]->id,
@@ -77,7 +102,27 @@ class UsuarioLeerTest extends TestCase
                         'created_at' => $usuarios[0]->created_at,
                         'updated_at' => $usuarios[0]->updated_at,
                     ],
+                    [
+                        'id' => $usuarioAutenticado->id,
+                        'name' => $usuarioAutenticado->name,
+                        'email' => $usuarioAutenticado->email,
+                        'email_verified_at' => $usuarioAutenticado->email_verified_at,
+                        'created_at' => $usuarioAutenticado->created_at,
+                        'updated_at' => $usuarioAutenticado->updated_at,
+                    ],
                 ],
+            ]);
+    }
+
+    public function test_como_usuario_no_autenticado_no_puedo_obtener_todos_los_usuarios()
+    {
+        $response = $this->getJson(route('usuarios.index'));
+
+        $response->assertUnauthorized()
+            ->assertExactJson([
+                "success" => false,
+                "status" => 401,
+                "message" => trans('auth.unauthenticated'),
             ]);
     }
 }

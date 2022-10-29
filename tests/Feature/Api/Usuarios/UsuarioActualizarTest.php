@@ -5,14 +5,17 @@ namespace Tests\Feature\Api\Usuarios;
 use Api\Usuarios\Models\Usuario;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class UsuarioActualizarTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_puedo_actualizar_un_usuario()
+    public function test_como_usuario_autenticado_puedo_actualizar_un_usuario()
     {
+        Sanctum::actingAs(Usuario::factory()->create());
+
         $usuario = Usuario::factory()->create();
 
         $datosDeUsuarioActualizados = Usuario::factory()->raw();
@@ -35,8 +38,24 @@ class UsuarioActualizarTest extends TestCase
         $this->assertDatabaseHas('usuarios', $jsonData);
     }
 
+    public function test_como_usuario_no_autenticado_no_puedo_actualizar_un_usuario()
+    {
+        $usuarioId = 1;
+
+        $response = $this->putJson(route('usuarios.update', $usuarioId), []);
+
+        $response->assertUnauthorized()
+            ->assertExactJson([
+                "success" => false,
+                "status" => 401,
+                "message" => trans('auth.unauthenticated'),
+            ]);
+    }
+
     public function test_no_se_encuentra_usuario_para_actualizar()
     {
+        Sanctum::actingAs(Usuario::factory()->create());
+
         $usuarioId = 1;
 
         $response = $this->putJson(route('usuarios.update', $usuarioId), []);
@@ -49,9 +68,10 @@ class UsuarioActualizarTest extends TestCase
             ]);
     }
 
-
     public function test_atributo_name_si_esta_presente_no_esta_vacio()
     {
+        Sanctum::actingAs(Usuario::factory()->create());
+
         $usuario = Usuario::factory()->create();
 
         $datosDeUsuarioActualizados = Usuario::factory()->raw(['name' => '']);
@@ -77,6 +97,8 @@ class UsuarioActualizarTest extends TestCase
 
     public function test_atributo_name_es_una_cadena()
     {
+        Sanctum::actingAs(Usuario::factory()->create());
+
         $usuario = Usuario::factory()->create();
 
         $datosDeUsuarioActualizados = Usuario::factory()->raw(['name' => 12345]);
@@ -102,6 +124,8 @@ class UsuarioActualizarTest extends TestCase
 
     public function test_atributo_name_tiene_tamano_maximo()
     {
+        Sanctum::actingAs(Usuario::factory()->create());
+
         $longitudMaxima = 255;
 
         $usuario = Usuario::factory()->create();
@@ -129,6 +153,8 @@ class UsuarioActualizarTest extends TestCase
 
     public function test_atributo_email_si_esta_presente_no_esta_vacio()
     {
+        Sanctum::actingAs(Usuario::factory()->create());
+
         $usuario = Usuario::factory()->create();
 
         $datosDeUsuarioActualizados = Usuario::factory()->raw(['email' => '']);
@@ -154,6 +180,8 @@ class UsuarioActualizarTest extends TestCase
 
     public function test_atributo_email_es_unico()
     {
+        Sanctum::actingAs(Usuario::factory()->create());
+
         Usuario::factory()->create(['email' => 'repetido.con.otro.usuario@email.com']);
 
         $usuario = Usuario::factory()->create(['email' => 'email@email.com']);
@@ -181,6 +209,8 @@ class UsuarioActualizarTest extends TestCase
 
     public function test_atributo_email_es_un_email_valido()
     {
+        Sanctum::actingAs(Usuario::factory()->create());
+
         $usuario = Usuario::factory()->create(['email' => 'email@email.com']);
 
         $datosDeUsuarioActualizados = Usuario::factory()->raw(['email' => 'email_invalido']);
@@ -206,11 +236,15 @@ class UsuarioActualizarTest extends TestCase
 
     public function test_atributo_email_tiene_tamano_maximo()
     {
+        Sanctum::actingAs(Usuario::factory()->create());
+
         $longitudMaxima = 255;
 
         $usuario = Usuario::factory()->create(['email' => 'email@email.com']);
 
-        $datosDeUsuarioActualizados = Usuario::factory()->raw(['email' => Str::random($longitudMaxima + 1) . '@email.com']);
+        $datosDeUsuarioActualizados = Usuario::factory()->raw(
+            ['email' => Str::random($longitudMaxima + 1) . '@email.com'],
+        );
 
         $this->assertDatabaseHas('usuarios', $usuario->toArray());
 
@@ -233,6 +267,8 @@ class UsuarioActualizarTest extends TestCase
 
     public function test_atributo_password_si_esta_presente_no_esta_vacio()
     {
+        Sanctum::actingAs(Usuario::factory()->create());
+
         $usuario = Usuario::factory()->create();
 
         $datosDeUsuarioActualizados = Usuario::factory()->raw(['password' => '']);
@@ -258,6 +294,8 @@ class UsuarioActualizarTest extends TestCase
 
     public function test_atributo_password_es_una_cadena()
     {
+        Sanctum::actingAs(Usuario::factory()->create());
+
         $usuario = Usuario::factory()->create();
 
         $datosDeUsuarioActualizados = Usuario::factory()->raw(['password' => 12345678]);
@@ -283,6 +321,8 @@ class UsuarioActualizarTest extends TestCase
 
     public function test_atributo_password_tiene_tamano_minimo()
     {
+        Sanctum::actingAs(Usuario::factory()->create());
+
         $longitudMinima = 8;
 
         $usuario = Usuario::factory()->create();
@@ -310,6 +350,8 @@ class UsuarioActualizarTest extends TestCase
 
     public function test_atributo_password_tiene_tamano_maximo()
     {
+        Sanctum::actingAs(Usuario::factory()->create());
+
         $longitudMaxima = 255;
 
         $usuario = Usuario::factory()->create();

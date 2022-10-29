@@ -5,14 +5,17 @@ namespace Tests\Feature\Api\Usuarios;
 use Api\Usuarios\Models\Usuario;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class UsuarioCrearTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_puedo_guardar_un_usuario()
+    public function test_como_usuario_autenticado_puedo_guardar_un_usuario()
     {
+        Sanctum::actingAs(Usuario::factory()->create());
+
         $usuario = Usuario::factory()->raw();
 
         $this->assertDatabaseMissing('usuarios', $usuario);
@@ -30,8 +33,22 @@ class UsuarioCrearTest extends TestCase
         $this->assertDatabaseHas('usuarios', $jsonData);
     }
 
+    public function test_como_usuario_no_autenticado_no_puedo_guardar_un_usuario()
+    {
+        $response = $this->postJson(route('usuarios.store'), []);
+
+        $response->assertUnauthorized()
+            ->assertExactJson([
+                "success" => false,
+                "status" => 401,
+                "message" => trans('auth.unauthenticated'),
+            ]);
+    }
+
     public function test_atributo_name_es_requerido()
     {
+        Sanctum::actingAs(Usuario::factory()->create());
+
         $usuario = Usuario::factory()->raw(['name' => '']);
 
         $response = $this->postJson(route('usuarios.store'), $usuario);
@@ -51,6 +68,8 @@ class UsuarioCrearTest extends TestCase
 
     public function test_atributo_name_es_una_cadena()
     {
+        Sanctum::actingAs(Usuario::factory()->create());
+
         $usuario = Usuario::factory()->raw(['name' => 12345]);
 
         $response = $this->postJson(route('usuarios.store'), $usuario);
@@ -70,6 +89,8 @@ class UsuarioCrearTest extends TestCase
 
     public function test_atributo_name_tiene_tamano_maximo()
     {
+        Sanctum::actingAs(Usuario::factory()->create());
+
         $longitudMaxima = 255;
 
         $usuario = Usuario::factory()->raw(['name' => Str::random($longitudMaxima + 1)]);
@@ -91,6 +112,8 @@ class UsuarioCrearTest extends TestCase
 
     public function test_atributo_email_es_requerido()
     {
+        Sanctum::actingAs(Usuario::factory()->create());
+
         $usuario = Usuario::factory()->raw(['email' => '']);
 
         $response = $this->postJson(route('usuarios.store'), $usuario);
@@ -110,6 +133,8 @@ class UsuarioCrearTest extends TestCase
 
     public function test_atributo_email_es_unico()
     {
+        Sanctum::actingAs(Usuario::factory()->create());
+
         Usuario::factory()->create(['email' => 'repetido@email.com']);
 
         $usuario = Usuario::factory()->raw(['email' => 'repetido@email.com']);
@@ -131,6 +156,8 @@ class UsuarioCrearTest extends TestCase
 
     public function test_atributo_email_es_un_email_valido()
     {
+        Sanctum::actingAs(Usuario::factory()->create());
+
         $usuario = Usuario::factory()->raw(['email' => 'email_invalido']);
 
         $response = $this->postJson(route('usuarios.store'), $usuario);
@@ -150,6 +177,8 @@ class UsuarioCrearTest extends TestCase
 
     public function test_atributo_email_tiene_tamano_maximo()
     {
+        Sanctum::actingAs(Usuario::factory()->create());
+
         $longitudMaxima = 255;
 
         $usuario = Usuario::factory()->raw(['email' => Str::random($longitudMaxima + 1) . '@email.com']);
@@ -171,6 +200,8 @@ class UsuarioCrearTest extends TestCase
 
     public function test_atributo_password_es_requerido()
     {
+        Sanctum::actingAs(Usuario::factory()->create());
+
         $usuario = Usuario::factory()->raw(['password' => '']);
 
         $response = $this->postJson(route('usuarios.store'), $usuario);
@@ -190,6 +221,8 @@ class UsuarioCrearTest extends TestCase
 
     public function test_atributo_password_es_una_cadena()
     {
+        Sanctum::actingAs(Usuario::factory()->create());
+
         $usuario = Usuario::factory()->raw(['password' => 12345678]);
 
         $response = $this->postJson(route('usuarios.store'), $usuario);
@@ -209,6 +242,8 @@ class UsuarioCrearTest extends TestCase
 
     public function test_atributo_password_tiene_tamano_minimo()
     {
+        Sanctum::actingAs(Usuario::factory()->create());
+
         $longitudMinima = 8;
 
         $usuario = Usuario::factory()->raw(['password' => Str::random($longitudMinima - 1)]);
@@ -230,6 +265,8 @@ class UsuarioCrearTest extends TestCase
 
     public function test_atributo_password_tiene_tamano_maximo()
     {
+        Sanctum::actingAs(Usuario::factory()->create());
+
         $longitudMaxima = 255;
 
         $usuario = Usuario::factory()->raw(['password' => Str::random($longitudMaxima + 1)]);
