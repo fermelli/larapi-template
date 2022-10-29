@@ -40,9 +40,9 @@ class ApiTokenAutenticacionTest extends TestCase
 
         $response->assertUnauthorized()
             ->assertExactJson([
-                "success" => false,
-                "status" => 401,
-                "message" => trans('auth.unauthenticated'),
+                'success' => false,
+                'status' => 401,
+                'message' => trans('auth.unauthenticated'),
             ]);
     }
 
