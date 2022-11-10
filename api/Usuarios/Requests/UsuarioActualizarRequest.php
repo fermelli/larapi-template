@@ -26,6 +26,10 @@ class UsuarioActualizarRequest extends ApiRequest
                 'string',
                 'min:8',
                 'max:255',
+                'confirmed',
+            ],
+            'password_confirmation' => [
+                'required_with:password',
             ],
         ];
     }

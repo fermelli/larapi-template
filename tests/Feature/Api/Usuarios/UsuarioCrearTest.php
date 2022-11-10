@@ -12,19 +12,34 @@ class UsuarioCrearTest extends TestCase
 {
     use RefreshDatabase;
 
+    private array $usuarioAtributos;
+    private array $usuarioData;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $password = Str::random(8);
+
+        $this->usuarioAtributos = Usuario::factory()->raw(['password' => $password]);
+
+        $this->usuarioData = array_merge($this->usuarioAtributos, ['password_confirmation' => $password]);
+    }
+
     public function test_como_usuario_autenticado_puedo_guardar_un_usuario()
     {
         Sanctum::actingAs(Usuario::factory()->create());
 
-        $usuario = Usuario::factory()->raw();
+        $this->assertDatabaseMissing('usuarios', $this->usuarioAtributos);
 
-        $this->assertDatabaseMissing('usuarios', $usuario);
-
-        $response = $this->postJson(route('usuarios.store'), $usuario);
+        $response = $this->postJson(
+            route('usuarios.store'),
+            array_merge($this->usuarioData, []),
+        );
 
         $jsonData = [
-            'name' => $usuario['name'],
-            'email' => $usuario['email'],
+            'name' => $this->usuarioData['name'],
+            'email' => $this->usuarioData['email'],
         ];
 
         $response->assertCreated()
@@ -49,9 +64,10 @@ class UsuarioCrearTest extends TestCase
     {
         Sanctum::actingAs(Usuario::factory()->create());
 
-        $usuario = Usuario::factory()->raw(['name' => '']);
-
-        $response = $this->postJson(route('usuarios.store'), $usuario);
+        $response = $this->postJson(
+            route('usuarios.store'),
+            array_merge($this->usuarioData, ['name' => ''])
+        );
 
         $response->assertUnprocessable()
             ->assertExactJson([
@@ -70,9 +86,10 @@ class UsuarioCrearTest extends TestCase
     {
         Sanctum::actingAs(Usuario::factory()->create());
 
-        $usuario = Usuario::factory()->raw(['name' => 12345]);
-
-        $response = $this->postJson(route('usuarios.store'), $usuario);
+        $response = $this->postJson(
+            route('usuarios.store'),
+            array_merge($this->usuarioData, ['name' => 12345])
+        );
 
         $response->assertUnprocessable()
             ->assertExactJson([
@@ -93,9 +110,10 @@ class UsuarioCrearTest extends TestCase
 
         $longitudMaxima = 255;
 
-        $usuario = Usuario::factory()->raw(['name' => Str::random($longitudMaxima + 1)]);
-
-        $response = $this->postJson(route('usuarios.store'), $usuario);
+        $response = $this->postJson(
+            route('usuarios.store'),
+            array_merge($this->usuarioData, ['name' => Str::random($longitudMaxima + 1)])
+        );
 
         $response->assertUnprocessable()
             ->assertExactJson([
@@ -114,9 +132,10 @@ class UsuarioCrearTest extends TestCase
     {
         Sanctum::actingAs(Usuario::factory()->create());
 
-        $usuario = Usuario::factory()->raw(['email' => '']);
-
-        $response = $this->postJson(route('usuarios.store'), $usuario);
+        $response = $this->postJson(
+            route('usuarios.store'),
+            array_merge($this->usuarioData, ['email' => ''])
+        );
 
         $response->assertUnprocessable()
             ->assertExactJson([
@@ -137,9 +156,10 @@ class UsuarioCrearTest extends TestCase
 
         Usuario::factory()->create(['email' => 'repetido@email.com']);
 
-        $usuario = Usuario::factory()->raw(['email' => 'repetido@email.com']);
-
-        $response = $this->postJson(route('usuarios.store'), $usuario);
+        $response = $this->postJson(
+            route('usuarios.store'),
+            array_merge($this->usuarioData, ['email' => 'repetido@email.com'])
+        );
 
         $response->assertUnprocessable()
             ->assertExactJson([
@@ -158,9 +178,10 @@ class UsuarioCrearTest extends TestCase
     {
         Sanctum::actingAs(Usuario::factory()->create());
 
-        $usuario = Usuario::factory()->raw(['email' => 'email_invalido']);
-
-        $response = $this->postJson(route('usuarios.store'), $usuario);
+        $response = $this->postJson(
+            route('usuarios.store'),
+            array_merge($this->usuarioData, ['email' => 'email_invalido'])
+        );
 
         $response->assertUnprocessable()
             ->assertExactJson([
@@ -181,9 +202,12 @@ class UsuarioCrearTest extends TestCase
 
         $longitudMaxima = 255;
 
-        $usuario = Usuario::factory()->raw(['email' => Str::random($longitudMaxima + 1) . '@email.com']);
+        $usuarioData = Usuario::factory()->raw();
 
-        $response = $this->postJson(route('usuarios.store'), $usuario);
+        $response = $this->postJson(
+            route('usuarios.store'),
+            array_merge($this->usuarioData, ['email' => Str::random($longitudMaxima + 1) . '@email.com'])
+        );
 
         $response->assertUnprocessable()
             ->assertExactJson([
@@ -202,9 +226,10 @@ class UsuarioCrearTest extends TestCase
     {
         Sanctum::actingAs(Usuario::factory()->create());
 
-        $usuario = Usuario::factory()->raw(['password' => '']);
-
-        $response = $this->postJson(route('usuarios.store'), $usuario);
+        $response = $this->postJson(
+            route('usuarios.store'),
+            array_merge($this->usuarioData, ['password' => '', 'password_confirmation' => ''])
+        );
 
         $response->assertUnprocessable()
             ->assertExactJson([
@@ -223,9 +248,10 @@ class UsuarioCrearTest extends TestCase
     {
         Sanctum::actingAs(Usuario::factory()->create());
 
-        $usuario = Usuario::factory()->raw(['password' => 12345678]);
-
-        $response = $this->postJson(route('usuarios.store'), $usuario);
+        $response = $this->postJson(
+            route('usuarios.store'),
+            array_merge($this->usuarioData, ['password' => 12345678, 'password_confirmation' => 12345678])
+        );
 
         $response->assertUnprocessable()
             ->assertExactJson([
@@ -245,10 +271,18 @@ class UsuarioCrearTest extends TestCase
         Sanctum::actingAs(Usuario::factory()->create());
 
         $longitudMinima = 8;
+        $passwordMuyCorto = Str::random($longitudMinima - 1);
 
-        $usuario = Usuario::factory()->raw(['password' => Str::random($longitudMinima - 1)]);
-
-        $response = $this->postJson(route('usuarios.store'), $usuario);
+        $response = $this->postJson(
+            route('usuarios.store'),
+            array_merge(
+                $this->usuarioData,
+                [
+                    'password' => $passwordMuyCorto,
+                    'password_confirmation' => $passwordMuyCorto,
+                ]
+            )
+        );
 
         $response->assertUnprocessable()
             ->assertExactJson([
@@ -268,10 +302,15 @@ class UsuarioCrearTest extends TestCase
         Sanctum::actingAs(Usuario::factory()->create());
 
         $longitudMaxima = 255;
+        $passwordMuyLargo = Str::random($longitudMaxima + 1);
 
-        $usuario = Usuario::factory()->raw(['password' => Str::random($longitudMaxima + 1)]);
-
-        $response = $this->postJson(route('usuarios.store'), $usuario);
+        $response = $this->postJson(
+            route('usuarios.store'),
+            array_merge($this->usuarioData, [
+                'password' => $passwordMuyLargo,
+                'password_confirmation' => $passwordMuyLargo,
+            ])
+        );
 
         $response->assertUnprocessable()
             ->assertExactJson([
@@ -281,6 +320,62 @@ class UsuarioCrearTest extends TestCase
                 'errors' => [
                     'password' => [
                         trans('validation.max.string', ['attribute' => 'password', 'max' => $longitudMaxima]),
+                    ],
+                ]
+            ]);
+    }
+
+    public function test_atributo_password_tiene_que_ser_confirmado()
+    {
+        Sanctum::actingAs(Usuario::factory()->create());
+
+        $response = $this->postJson(
+            route('usuarios.store'),
+            array_merge($this->usuarioData, [
+                'password' => 'password',
+                'password_confirmation' => 'otro_password',
+            ])
+        );
+
+        $response->assertUnprocessable()
+            ->assertExactJson([
+                'success' => false,
+                'status' => 422,
+                'message' => trans('messages.validation_failed'),
+                'errors' => [
+                    'password' => [
+                        trans('validation.confirmed', ['attribute' => 'password']),
+                    ],
+                ]
+            ]);
+    }
+
+    public function test_atributo_password_confirmation_es_requerido_con_el_password()
+    {
+        Sanctum::actingAs(Usuario::factory()->create());
+
+        $response = $this->postJson(
+            route('usuarios.store'),
+            array_merge($this->usuarioData, [
+                'password' => 'password',
+                'password_confirmation' => null,
+            ])
+        );
+
+        $response->assertUnprocessable()
+            ->assertExactJson([
+                'success' => false,
+                'status' => 422,
+                'message' => trans('messages.validation_failed'),
+                'errors' => [
+                    'password' => [
+                        trans('validation.confirmed', ['attribute' => 'password']),
+                    ],
+                    'password_confirmation' => [
+                        trans('validation.required_with', [
+                            'attribute' => 'password confirmation',
+                            'values' => 'password',
+                        ]),
                     ],
                 ]
             ]);

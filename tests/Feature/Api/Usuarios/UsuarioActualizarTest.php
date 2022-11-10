@@ -12,24 +12,39 @@ class UsuarioActualizarTest extends TestCase
 {
     use RefreshDatabase;
 
+    private Usuario $usuario;
+    private array $datosDeUsuarioActualizados;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->usuario = Usuario::factory()->create();
+
+        $password = Str::random(8);
+
+        $usuarioAtributos = Usuario::factory()->raw(['password' => $password]);
+
+        $this->datosDeUsuarioActualizados = array_merge($usuarioAtributos, ['password_confirmation' => $password]);
+    }
+
     public function test_como_usuario_autenticado_puedo_actualizar_un_usuario()
     {
         Sanctum::actingAs(Usuario::factory()->create());
 
-        $usuario = Usuario::factory()->create();
+        $this->assertDatabaseHas('usuarios', $this->usuario->toArray());
 
-        $datosDeUsuarioActualizados = Usuario::factory()->raw();
+        $usuarioId = $this->usuario->getRouteKey();
 
-        $this->assertDatabaseHas('usuarios', $usuario->toArray());
-
-        $usuarioId = $usuario->getRouteKey();
-
-        $response = $this->putJson(route('usuarios.update', $usuarioId), $datosDeUsuarioActualizados);
+        $response = $this->putJson(
+            route('usuarios.update', $usuarioId),
+            $this->datosDeUsuarioActualizados
+        );
 
         $jsonData = [
             'id' => $usuarioId,
-            'name' => $datosDeUsuarioActualizados['name'],
-            'email' => $datosDeUsuarioActualizados['email'],
+            'name' => $this->datosDeUsuarioActualizados['name'],
+            'email' => $this->datosDeUsuarioActualizados['email'],
         ];
 
         $response->assertOk()
@@ -56,7 +71,7 @@ class UsuarioActualizarTest extends TestCase
     {
         Sanctum::actingAs(Usuario::factory()->create());
 
-        $usuarioId = 1;
+        $usuarioId = 1000;
 
         $response = $this->putJson(route('usuarios.update', $usuarioId), []);
 
@@ -72,15 +87,14 @@ class UsuarioActualizarTest extends TestCase
     {
         Sanctum::actingAs(Usuario::factory()->create());
 
-        $usuario = Usuario::factory()->create();
+        $this->assertDatabaseHas('usuarios', $this->usuario->toArray());
 
-        $datosDeUsuarioActualizados = Usuario::factory()->raw(['name' => '']);
+        $usuarioId = $this->usuario->getRouteKey();
 
-        $this->assertDatabaseHas('usuarios', $usuario->toArray());
-
-        $usuarioId = $usuario->getRouteKey();
-
-        $response = $this->putJson(route('usuarios.update', $usuarioId), $datosDeUsuarioActualizados);
+        $response = $this->putJson(
+            route('usuarios.update', $usuarioId),
+            array_merge($this->datosDeUsuarioActualizados, ['name' => ''])
+        );
 
         $response->assertUnprocessable()
             ->assertExactJson([
@@ -99,15 +113,16 @@ class UsuarioActualizarTest extends TestCase
     {
         Sanctum::actingAs(Usuario::factory()->create());
 
-        $usuario = Usuario::factory()->create();
+        $datosDeUsuarioActualizados = Usuario::factory()->raw();
 
-        $datosDeUsuarioActualizados = Usuario::factory()->raw(['name' => 12345]);
+        $this->assertDatabaseHas('usuarios', $this->usuario->toArray());
 
-        $this->assertDatabaseHas('usuarios', $usuario->toArray());
+        $usuarioId = $this->usuario->getRouteKey();
 
-        $usuarioId = $usuario->getRouteKey();
-
-        $response = $this->putJson(route('usuarios.update', $usuarioId), $datosDeUsuarioActualizados);
+        $response = $this->putJson(
+            route('usuarios.update', $usuarioId),
+            array_merge($this->datosDeUsuarioActualizados, ['name' => 12345])
+        );
 
         $response->assertUnprocessable()
             ->assertExactJson([
@@ -128,15 +143,14 @@ class UsuarioActualizarTest extends TestCase
 
         $longitudMaxima = 255;
 
-        $usuario = Usuario::factory()->create();
+        $this->assertDatabaseHas('usuarios', $this->usuario->toArray());
 
-        $datosDeUsuarioActualizados = Usuario::factory()->raw(['name' => Str::random($longitudMaxima + 1)]);
+        $usuarioId = $this->usuario->getRouteKey();
 
-        $this->assertDatabaseHas('usuarios', $usuario->toArray());
-
-        $usuarioId = $usuario->getRouteKey();
-
-        $response = $this->putJson(route('usuarios.update', $usuarioId), $datosDeUsuarioActualizados);
+        $response = $this->putJson(
+            route('usuarios.update', $usuarioId),
+            array_merge($this->datosDeUsuarioActualizados, ['name' => Str::random($longitudMaxima + 1)])
+        );
 
         $response->assertUnprocessable()
             ->assertExactJson([
@@ -155,15 +169,14 @@ class UsuarioActualizarTest extends TestCase
     {
         Sanctum::actingAs(Usuario::factory()->create());
 
-        $usuario = Usuario::factory()->create();
+        $this->assertDatabaseHas('usuarios', $this->usuario->toArray());
 
-        $datosDeUsuarioActualizados = Usuario::factory()->raw(['email' => '']);
+        $usuarioId = $this->usuario->getRouteKey();
 
-        $this->assertDatabaseHas('usuarios', $usuario->toArray());
-
-        $usuarioId = $usuario->getRouteKey();
-
-        $response = $this->putJson(route('usuarios.update', $usuarioId), $datosDeUsuarioActualizados);
+        $response = $this->putJson(
+            route('usuarios.update', $usuarioId),
+            array_merge($this->datosDeUsuarioActualizados, ['email' => ''])
+        );
 
         $response->assertUnprocessable()
             ->assertExactJson([
@@ -186,13 +199,14 @@ class UsuarioActualizarTest extends TestCase
 
         $usuario = Usuario::factory()->create(['email' => 'email@email.com']);
 
-        $datosDeUsuarioActualizados = Usuario::factory()->raw(['email' => 'repetido.con.otro.usuario@email.com']);
-
         $this->assertDatabaseHas('usuarios', $usuario->toArray());
 
-        $usuarioId = $usuario->getRouteKey();
+        $usuarioId = $this->usuario->getRouteKey();
 
-        $response = $this->putJson(route('usuarios.update', $usuarioId), $datosDeUsuarioActualizados);
+        $response = $this->putJson(
+            route('usuarios.update', $usuarioId),
+            array_merge($this->datosDeUsuarioActualizados, ['email' => 'repetido.con.otro.usuario@email.com'])
+        );
 
         $response->assertUnprocessable()
             ->assertExactJson([
@@ -213,13 +227,14 @@ class UsuarioActualizarTest extends TestCase
 
         $usuario = Usuario::factory()->create(['email' => 'email@email.com']);
 
-        $datosDeUsuarioActualizados = Usuario::factory()->raw(['email' => 'email_invalido']);
-
         $this->assertDatabaseHas('usuarios', $usuario->toArray());
 
-        $usuarioId = $usuario->getRouteKey();
+        $usuarioId = $this->usuario->getRouteKey();
 
-        $response = $this->putJson(route('usuarios.update', $usuarioId), $datosDeUsuarioActualizados);
+        $response = $this->putJson(
+            route('usuarios.update', $usuarioId),
+            array_merge($this->datosDeUsuarioActualizados, ['email' => 'email_invalido'])
+        );
 
         $response->assertUnprocessable()
             ->assertExactJson([
@@ -242,15 +257,14 @@ class UsuarioActualizarTest extends TestCase
 
         $usuario = Usuario::factory()->create(['email' => 'email@email.com']);
 
-        $datosDeUsuarioActualizados = Usuario::factory()->raw(
-            ['email' => Str::random($longitudMaxima + 1) . '@email.com'],
-        );
-
         $this->assertDatabaseHas('usuarios', $usuario->toArray());
 
-        $usuarioId = $usuario->getRouteKey();
+        $usuarioId = $this->usuario->getRouteKey();
 
-        $response = $this->putJson(route('usuarios.update', $usuarioId), $datosDeUsuarioActualizados);
+        $response = $this->putJson(
+            route('usuarios.update', $usuarioId),
+            array_merge($this->datosDeUsuarioActualizados, ['email' => Str::random($longitudMaxima + 1) . '@email.com'])
+        );
 
         $response->assertUnprocessable()
             ->assertExactJson([
@@ -269,15 +283,17 @@ class UsuarioActualizarTest extends TestCase
     {
         Sanctum::actingAs(Usuario::factory()->create());
 
-        $usuario = Usuario::factory()->create();
+        $this->assertDatabaseHas('usuarios', $this->usuario->toArray());
 
-        $datosDeUsuarioActualizados = Usuario::factory()->raw(['password' => '']);
+        $usuarioId = $this->usuario->getRouteKey();
 
-        $this->assertDatabaseHas('usuarios', $usuario->toArray());
-
-        $usuarioId = $usuario->getRouteKey();
-
-        $response = $this->putJson(route('usuarios.update', $usuarioId), $datosDeUsuarioActualizados);
+        $response = $this->putJson(
+            route('usuarios.update', $usuarioId),
+            array_merge($this->datosDeUsuarioActualizados, [
+                'password' => '',
+                'password_confirmation' => '',
+            ])
+        );
 
         $response->assertUnprocessable()
             ->assertExactJson([
@@ -296,15 +312,17 @@ class UsuarioActualizarTest extends TestCase
     {
         Sanctum::actingAs(Usuario::factory()->create());
 
-        $usuario = Usuario::factory()->create();
+        $this->assertDatabaseHas('usuarios', $this->usuario->toArray());
 
-        $datosDeUsuarioActualizados = Usuario::factory()->raw(['password' => 12345678]);
+        $usuarioId = $this->usuario->getRouteKey();
 
-        $this->assertDatabaseHas('usuarios', $usuario->toArray());
-
-        $usuarioId = $usuario->getRouteKey();
-
-        $response = $this->putJson(route('usuarios.update', $usuarioId), $datosDeUsuarioActualizados);
+        $response = $this->putJson(
+            route('usuarios.update', $usuarioId),
+            array_merge($this->datosDeUsuarioActualizados, [
+                'password' => 12345678,
+                'password_confirmation' => 12345678,
+            ])
+        );
 
         $response->assertUnprocessable()
             ->assertExactJson([
@@ -325,15 +343,19 @@ class UsuarioActualizarTest extends TestCase
 
         $longitudMinima = 8;
 
-        $usuario = Usuario::factory()->create();
+        $passwordMuyCorto = Str::random($longitudMinima - 1);
 
-        $datosDeUsuarioActualizados = Usuario::factory()->raw(['password' => Str::random($longitudMinima - 1)]);
+        $this->assertDatabaseHas('usuarios', $this->usuario->toArray());
 
-        $this->assertDatabaseHas('usuarios', $usuario->toArray());
+        $usuarioId = $this->usuario->getRouteKey();
 
-        $usuarioId = $usuario->getRouteKey();
-
-        $response = $this->putJson(route('usuarios.update', $usuarioId), $datosDeUsuarioActualizados);
+        $response = $this->putJson(
+            route('usuarios.update', $usuarioId),
+            array_merge($this->datosDeUsuarioActualizados, [
+                'password' => $passwordMuyCorto,
+                'password_confirmation' => $passwordMuyCorto,
+            ])
+        );
 
         $response->assertUnprocessable()
             ->assertExactJson([
@@ -354,15 +376,19 @@ class UsuarioActualizarTest extends TestCase
 
         $longitudMaxima = 255;
 
-        $usuario = Usuario::factory()->create();
+        $passwordMuyLargo = Str::random($longitudMaxima + 1);
 
-        $datosDeUsuarioActualizados = Usuario::factory()->raw(['password' => Str::random($longitudMaxima + 1)]);
+        $this->assertDatabaseHas('usuarios', $this->usuario->toArray());
 
-        $this->assertDatabaseHas('usuarios', $usuario->toArray());
+        $usuarioId = $this->usuario->getRouteKey();
 
-        $usuarioId = $usuario->getRouteKey();
-
-        $response = $this->putJson(route('usuarios.update', $usuarioId), $datosDeUsuarioActualizados);
+        $response = $this->putJson(
+            route('usuarios.update', $usuarioId),
+            array_merge($this->datosDeUsuarioActualizados, [
+                'password' => $passwordMuyLargo,
+                'password_confirmation' => $passwordMuyLargo,
+            ])
+        );
 
         $response->assertUnprocessable()
             ->assertExactJson([
@@ -372,6 +398,70 @@ class UsuarioActualizarTest extends TestCase
                 'errors' => [
                     'password' => [
                         trans('validation.max.string', ['attribute' => 'password', 'max' => $longitudMaxima]),
+                    ],
+                ]
+            ]);
+    }
+
+    public function test_atributo_password_tiene_que_ser_confirmado()
+    {
+        Sanctum::actingAs(Usuario::factory()->create());
+
+        $this->assertDatabaseHas('usuarios', $this->usuario->toArray());
+
+        $usuarioId = $this->usuario->getRouteKey();
+
+        $response = $this->putJson(
+            route('usuarios.update', $usuarioId),
+            array_merge($this->datosDeUsuarioActualizados, [
+                'password' => 'password',
+                'password_confirmation' => 'otro_password',
+            ])
+        );
+
+        $response->assertUnprocessable()
+            ->assertExactJson([
+                'success' => false,
+                'status' => 422,
+                'message' => trans('messages.validation_failed'),
+                'errors' => [
+                    'password' => [
+                        trans('validation.confirmed', ['attribute' => 'password']),
+                    ],
+                ]
+            ]);
+    }
+
+    public function test_atributo_password_confirmation_es_requerido_con_el_password()
+    {
+        Sanctum::actingAs(Usuario::factory()->create());
+
+        $this->assertDatabaseHas('usuarios', $this->usuario->toArray());
+
+        $usuarioId = $this->usuario->getRouteKey();
+
+        $response = $this->putJson(
+            route('usuarios.update', $usuarioId),
+            array_merge($this->datosDeUsuarioActualizados, [
+                'password' => 'password',
+                'password_confirmation' => null,
+            ])
+        );
+
+        $response->assertUnprocessable()
+            ->assertExactJson([
+                'success' => false,
+                'status' => 422,
+                'message' => trans('messages.validation_failed'),
+                'errors' => [
+                    'password' => [
+                        trans('validation.confirmed', ['attribute' => 'password']),
+                    ],
+                    'password_confirmation' => [
+                        trans('validation.required_with', [
+                            'attribute' => 'password confirmation',
+                            'values' => 'password',
+                        ]),
                     ],
                 ]
             ]);
