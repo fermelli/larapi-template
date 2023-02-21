@@ -13,8 +13,6 @@ class ApiTokenAutenticacionController extends Controller
     public function __construct(ApiTokenAutenticacionService $apiTokenAutenticacionService)
     {
         $this->apiTokenAutenticacionService = $apiTokenAutenticacionService;
-
-        $this->middleware('auth:sanctum')->except(['login']);
     }
 
     public function login(ApiTokenLoginRequest $request)

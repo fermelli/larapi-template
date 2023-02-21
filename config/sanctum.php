@@ -46,7 +46,7 @@ return [
     |
     */
 
-    'expiration' => null,
+    'expiration' => intval(env('SANCTUM_EXPIRATION', 6 * 24)),
 
     /*
     |--------------------------------------------------------------------------

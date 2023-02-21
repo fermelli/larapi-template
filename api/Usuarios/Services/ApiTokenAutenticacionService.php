@@ -20,11 +20,7 @@ class ApiTokenAutenticacionService
     {
         $usuario = $this->usuarioRepository->getWhere('email', $email)->first();
 
-        if (is_null($usuario)) {
-            throw new CredencialesInvalidasException;
-        }
-
-        if (!Hash::check($password, $usuario->password)) {
+        if (is_null($usuario) || !Hash::check($password, $usuario->password)) {
             throw new CredencialesInvalidasException;
         }
 
