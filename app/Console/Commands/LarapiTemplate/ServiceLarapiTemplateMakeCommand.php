@@ -4,6 +4,7 @@ namespace App\Console\Commands\LarapiTemplate;
 
 use Illuminate\Console\Concerns\CreatesMatchingTest;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Input\InputOption;
 
 #[AsCommand(name: 'make:service-larapitemplate')]
 class ServiceLarapiTemplateMakeCommand extends GeneratorLarapiTemplateCommnad
@@ -55,6 +56,21 @@ class ServiceLarapiTemplateMakeCommand extends GeneratorLarapiTemplateCommnad
     }
 
     /**
+     * Get the console command options.
+     *
+     * @return array
+     */
+    protected function getOptions()
+    {
+        return array_merge([
+            ['repository', 'r', InputOption::VALUE_NONE, 'Indicates if also a repository should be created'],
+            ['not-found-exception', 'e', InputOption::VALUE_NONE, 'Indicates if also a not found exception should be created'],
+            ['model', 'm', InputOption::VALUE_NONE, 'Indicates if also a model should be created'],
+            ['all', 'a', InputOption::VALUE_NONE, 'Indicates if also a repository, model and not found exception should be created'],
+        ], parent::getOptions());
+    }
+
+    /**
      * Build the class with the given name.
      *
      * Remove the base service import if we are already in the base namespace.
@@ -67,13 +83,38 @@ class ServiceLarapiTemplateMakeCommand extends GeneratorLarapiTemplateCommnad
         $replace = [];
 
         $resourceName = $this->getResourceName($name);
-        $resourceNameSingular = $this->getSingularCapitalizeWord($resourceName);
-        $partialVariableName = strtolower($resourceNameSingular);
+        $partialVariableName = lcfirst($resourceName);
 
-        $replace['{{ resourceNameSingular }}'] = $resourceNameSingular;
-        $replace['{{resourceNameSingular}}'] = $resourceNameSingular;
+        $replace['{{ resourceName }}'] = $resourceName;
+        $replace['{{resourceName}}'] = $resourceName;
         $replace['{{ partialVariableName }}'] = $partialVariableName;
         $replace['{{partialVariableName}}'] = $partialVariableName;
+
+        $arguments = [
+            'name' => $this->getNameInput(),
+        ];
+
+        if (
+            $this->hasOption('repository') && $this->option('repository')
+            || $this->hasOption('all') && $this->option('all')
+        ) {
+            $this->call('make:repository-larapitemplate', $arguments);
+        }
+
+        if (
+            $this->hasOption('not-found-exception') && $this->option('not-found-exception')
+            || $this->hasOption('all') && $this->option('all')
+        ) {
+            $this->call('make:exception-not-found-larapitemplate', $arguments);
+        }
+
+        if (
+            $this->hasOption('model') && $this->option('model')
+            || $this->hasOption('all') && $this->option('all')
+        ) {
+            $this->call('make:model-larapitemplate', $arguments);
+        }
+
 
         return str_replace(
             array_keys($replace),

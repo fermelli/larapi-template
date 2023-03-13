@@ -2,14 +2,14 @@
 
 namespace {{ namespace }}\Repositories;
 
-use {{ namespace }}\Models\{{ resourceNameSingular }};
+use {{ namespace }}\Models\{{ resourceName }};
 use App\Abstracts\Repository;
 
 class {{ class }} extends Repository
 {
     public function getModel()
     {
-        return new {{ resourceNameSingular }}();
+        return new {{ resourceName }}();
     }
 
     public function create(array $data)
@@ -23,7 +23,7 @@ class {{ class }} extends Repository
         return  ${{ partialVariableName }};
     }
 
-    public function update({{ resourceNameSingular }}  ${{ partialVariableName }}, array $data)
+    public function update({{ resourceName }}  ${{ partialVariableName }}, array $data)
     {
         ${{ partialVariableName }}->fill($data);
 

@@ -4,6 +4,7 @@ namespace App\Console\Commands\LarapiTemplate;
 
 use Illuminate\Console\Concerns\CreatesMatchingTest;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Input\InputOption;
 
 #[AsCommand(name: 'make:repository-larapitemplate')]
 class RepositoryLarapiTemplateMakeCommand extends GeneratorLarapiTemplateCommnad
@@ -55,6 +56,18 @@ class RepositoryLarapiTemplateMakeCommand extends GeneratorLarapiTemplateCommnad
     }
 
     /**
+     * Get the console command options.
+     *
+     * @return array
+     */
+    protected function getOptions()
+    {
+        return array_merge([
+            ['model', 'm', InputOption::VALUE_NONE, 'Indicates if also a model should be created'],
+        ], parent::getOptions());
+    }
+
+    /**
      * Build the class with the given name.
      *
      * Remove the base repository import if we are already in the base namespace.
@@ -67,13 +80,20 @@ class RepositoryLarapiTemplateMakeCommand extends GeneratorLarapiTemplateCommnad
         $replace = [];
 
         $resourceName = $this->getResourceName($name);
-        $resourceNameSingular = $this->getSingularCapitalizeWord($resourceName);
-        $partialVariableName = strtolower($resourceNameSingular);
+        $partialVariableName = lcfirst($resourceName);
 
-        $replace['{{ resourceNameSingular }}'] = $resourceNameSingular;
-        $replace['{{resourceNameSingular}}'] = $resourceNameSingular;
+        $replace['{{ resourceName }}'] = $resourceName;
+        $replace['{{resourceName}}'] = $resourceName;
         $replace['{{ partialVariableName }}'] = $partialVariableName;
         $replace['{{partialVariableName}}'] = $partialVariableName;
+
+        $arguments = [
+            'name' => $this->getNameInput(),
+        ];
+
+        if ($this->hasOption('model') && $this->option('model')) {
+            $this->call('make:model-larapitemplate', $arguments);
+        }
 
         return str_replace(
             array_keys($replace),

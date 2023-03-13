@@ -2,6 +2,6 @@
 
 /** @var \Illuminate\Routing\Router $router */
 
-use {{ namespace }}\Controllers\{{ resourceNameSingular }}Controller;
+use {{ namespace }}\Controllers\{{ resourceName }}Controller;
 
-$router->apiResource('{{ routeName }}', {{ resourceNameSingular }}Controller::class);
+$router->apiResource('{{ routeName }}', {{ resourceName }}Controller::class);

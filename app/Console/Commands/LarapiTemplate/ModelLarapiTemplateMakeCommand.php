@@ -3,6 +3,7 @@
 namespace App\Console\Commands\LarapiTemplate;
 
 use Illuminate\Console\Concerns\CreatesMatchingTest;
+use Illuminate\Support\Pluralizer;
 use Illuminate\Support\Str;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputOption;
@@ -69,7 +70,7 @@ class ModelLarapiTemplateMakeCommand extends GeneratorLarapiTemplateCommnad
      */
     protected function replaceClass($stub, $name)
     {
-        $class = $this->getSingularCapitalizeWord($this->getResourceName($name));
+        $class = $this->getResourceName($name);
 
         return str_replace(['{{ class }}', '{{class}}'], $class, $stub);
     }
@@ -82,9 +83,7 @@ class ModelLarapiTemplateMakeCommand extends GeneratorLarapiTemplateCommnad
      */
     protected function getFileName($name)
     {
-        $nameSingular = $this->getSingularCapitalizeWord($name);
-
-        return str_replace('\\', '/', $nameSingular) . '.php';
+        return str_replace('\\', '/', $name) . '.php';
     }
 
     /**
@@ -94,9 +93,9 @@ class ModelLarapiTemplateMakeCommand extends GeneratorLarapiTemplateCommnad
      */
     protected function getOptions()
     {
-        return [
+        return array_merge([
             ['pivot', 'p', InputOption::VALUE_NONE, 'Indicates if the generated model should be a custom intermediate table model'],
-        ];
+        ], parent::getOptions());
     }
 
     /**
@@ -112,7 +111,9 @@ class ModelLarapiTemplateMakeCommand extends GeneratorLarapiTemplateCommnad
         $replace = [];
 
         $resourceName = $this->getResourceName($name);
-        $tableName = Str::snake($resourceName);
+        $tableName = implode('_', array_map(function ($resource) {
+            return Pluralizer::plural($resource);
+        }, explode('_', Str::snake($resourceName))));
 
         $replace['{{ tableName }}'] = $tableName;
         $replace['{{tableName}}'] = $tableName;

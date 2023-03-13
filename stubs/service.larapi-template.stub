@@ -2,14 +2,14 @@
 
 namespace {{ namespace }}\Services;
 
-use {{ namespace }}\Exceptions\{{ resourceNameSingular }}NoEncontradoException;
-use {{ namespace }}\Repositories\{{ resourceNameSingular }}Repository;
+use {{ namespace }}\Exceptions\{{ resourceName }}NoEncontradoException;
+use {{ namespace }}\Repositories\{{ resourceName }}Repository;
 
 class {{ class }}
 {
-    private {{ resourceNameSingular }}Repository ${{ partialVariableName }}Repository;
+    private {{ resourceName }}Repository ${{ partialVariableName }}Repository;
 
-    public function __construct({{ resourceNameSingular }}Repository ${{ partialVariableName }}Repository)
+    public function __construct({{ resourceName }}Repository ${{ partialVariableName }}Repository)
     {
         $this->{{ partialVariableName }}Repository = ${{ partialVariableName }}Repository;
     }
@@ -21,7 +21,7 @@ class {{ class }}
 
     public function obtenerPorId(${{ partialVariableName }}Id, array $options = [])
     {
-        ${{ partialVariableName }} = $this->obtener{{ resourceNameSingular }}Solicitado(${{ partialVariableName }}Id, $options);
+        ${{ partialVariableName }} = $this->obtener{{ resourceName }}Solicitado(${{ partialVariableName }}Id, $options);
 
         return ${{ partialVariableName }};
     }
@@ -35,7 +35,7 @@ class {{ class }}
 
     public function actualizar(${{ partialVariableName }}Id, array $data)
     {
-        ${{ partialVariableName }} = $this->obtener{{ resourceNameSingular }}Solicitado(${{ partialVariableName }}Id);
+        ${{ partialVariableName }} = $this->obtener{{ resourceName }}Solicitado(${{ partialVariableName }}Id);
 
         ${{ partialVariableName }} = $this->{{ partialVariableName }}Repository->update(${{ partialVariableName }}, $data);
 
@@ -44,19 +44,19 @@ class {{ class }}
 
     public function eliminar(${{ partialVariableName }}Id)
     {
-        ${{ partialVariableName }} = $this->obtener{{ resourceNameSingular }}Solicitado(${{ partialVariableName }}Id, ['select' => ['id']]);
+        ${{ partialVariableName }} = $this->obtener{{ resourceName }}Solicitado(${{ partialVariableName }}Id, ['select' => ['id']]);
 
         $this->{{ partialVariableName }}Repository->delete(${{ partialVariableName }}Id);
 
         return ${{ partialVariableName }};
     }
 
-    private function obtener{{ resourceNameSingular }}Solicitado(${{ partialVariableName }}Id, array $options = [])
+    private function obtener{{ resourceName }}Solicitado(${{ partialVariableName }}Id, array $options = [])
     {
         ${{ partialVariableName }} = $this->{{ partialVariableName }}Repository->getById(${{ partialVariableName }}Id, $options);
 
         if (is_null(${{ partialVariableName }})) {
-            throw new {{ resourceNameSingular }}NoEncontradoException;
+            throw new {{ resourceName }}NoEncontradoException;
         }
 
         return ${{ partialVariableName }};

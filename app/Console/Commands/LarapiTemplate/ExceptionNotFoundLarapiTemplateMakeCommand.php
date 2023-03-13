@@ -64,7 +64,7 @@ class ExceptionNotFoundLarapiTemplateMakeCommand extends GeneratorLarapiTemplate
      */
     protected function replaceClass($stub, $name)
     {
-        $class = $this->getSingularCapitalizeWord($this->getResourceName($name)) . 'NoEncontrado' . $this->type;
+        $class = $this->getResourceName($name) . 'NoEncontrado' . $this->type;
 
         return str_replace(['{{ class }}', '{{class}}'], $class, $stub);
     }
@@ -77,9 +77,7 @@ class ExceptionNotFoundLarapiTemplateMakeCommand extends GeneratorLarapiTemplate
      */
     protected function getFileName($name)
     {
-        $nameSingular = $this->getSingularCapitalizeWord($name);
-
-        return str_replace('\\', '/', $nameSingular) . "NoEncontrado$this->type.php";
+        return str_replace('\\', '/', $name) . 'NoEncontrado' . $this->getSingularCapitalize($this->type) . '.php';
     }
 
     /**
@@ -95,8 +93,7 @@ class ExceptionNotFoundLarapiTemplateMakeCommand extends GeneratorLarapiTemplate
         $replace = [];
 
         $resourceName = $this->getResourceName($name);
-        $resourceNameSingular = $this->getSingularCapitalizeWord($resourceName);
-        $variableSnakeCase = Str::snake($resourceNameSingular);
+        $variableSnakeCase = Str::snake($resourceName);
 
         $replace['{{ variableSnakeCase }}'] = $variableSnakeCase;
         $replace['{{variableSnakeCase}}'] = $variableSnakeCase;

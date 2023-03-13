@@ -63,7 +63,7 @@ class RequestUpdateLarapiTemplateMakeCommand extends GeneratorLarapiTemplateComm
      */
     protected function replaceClass($stub, $name)
     {
-        $class = $this->getSingularCapitalizeWord($this->getResourceName($name)) . 'Actualizar' . $this->type;
+        $class = $this->getResourceName($name) . 'Actualizar' . $this->getSingularCapitalize($this->type);
 
         return str_replace(['{{ class }}', '{{class}}'], $class, $stub);
     }
@@ -76,9 +76,7 @@ class RequestUpdateLarapiTemplateMakeCommand extends GeneratorLarapiTemplateComm
      */
     protected function getFileName($name)
     {
-        $nameSingular = $this->getSingularCapitalizeWord($name);
-
-        return str_replace('\\', '/', $nameSingular) . "Actualizar$this->type.php";
+        return str_replace('\\', '/', $name) . 'Actualizar' . $this->getSingularCapitalize($this->type) . '.php';
     }
 
     /**

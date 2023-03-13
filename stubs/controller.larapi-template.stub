@@ -2,16 +2,16 @@
 
 namespace {{ namespace }}\Controllers;
 
-use {{ namespace }}\Requests\{{ resourceNameSingular }}ActualizarRequest;
-use {{ namespace }}\Requests\{{ resourceNameSingular }}CrearRequest;
-use {{ namespace }}\Services\{{ resourceNameSingular }}Service;
+use {{ namespace }}\Requests\{{ resourceName }}ActualizarRequest;
+use {{ namespace }}\Requests\{{ resourceName }}CrearRequest;
+use {{ namespace }}\Services\{{ resourceName }}Service;
 use App\Abstracts\Controller;
 
 class {{ class }} extends Controller
 {
-    private {{ resourceNameSingular }}Service ${{ partialVariableName }}Service;
+    private {{ resourceName }}Service ${{ partialVariableName }}Service;
 
-    public function __construct({{ resourceNameSingular }}Service ${{ partialVariableName }}Service)
+    public function __construct({{ resourceName }}Service ${{ partialVariableName }}Service)
     {
         $this->{{ partialVariableName }}Service = ${{ partialVariableName }}Service;
     }
@@ -25,16 +25,16 @@ class {{ class }} extends Controller
         return $this->response($datosDevueltos);
     }
 
-    public function show(${{ resourceNameSingular }}Id)
+    public function show(${{ partialVariableName }}Id)
     {
         $opciones = $this->parseResourceOptions();
 
-        $datosDevueltos['{{ variableSnakeCase }}'] = $this->{{ partialVariableName }}Service->obtenerPorId(${{ resourceNameSingular }}Id, $opciones);
+        $datosDevueltos['{{ variableSnakeCase }}'] = $this->{{ partialVariableName }}Service->obtenerPorId(${{ partialVariableName }}Id, $opciones);
 
         return $this->response($datosDevueltos);
     }
 
-    public function store({{ resourceNameSingular }}CrearRequest $request)
+    public function store({{ resourceName }}CrearRequest $request)
     {
         $datos = $request->validated();
 
@@ -43,18 +43,18 @@ class {{ class }} extends Controller
         return $this->response($datosDevueltos, 201);
     }
 
-    public function update(${{ resourceNameSingular }}Id, {{ resourceNameSingular }}ActualizarRequest $request)
+    public function update(${{ partialVariableName }}Id, {{ resourceName }}ActualizarRequest $request)
     {
         $datos = $request->validated();
 
-        $datosDevueltos['{{ variableSnakeCase }}'] = $this->{{ partialVariableName }}Service->actualizar(${{ resourceNameSingular }}Id, $datos);
+        $datosDevueltos['{{ variableSnakeCase }}'] = $this->{{ partialVariableName }}Service->actualizar(${{ partialVariableName }}Id, $datos);
 
         return $this->response($datosDevueltos);
     }
 
-    public function destroy(${{ resourceNameSingular }}Id)
+    public function destroy(${{ partialVariableName }}Id)
     {
-        $this->{{ partialVariableName }}Service->eliminar(${{ resourceNameSingular }}Id);
+        $this->{{ partialVariableName }}Service->eliminar(${{ partialVariableName }}Id);
 
         return $this->response(null, 204);
     }

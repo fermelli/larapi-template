@@ -6,6 +6,7 @@ use Illuminate\Console\GeneratorCommand;
 use Illuminate\Support\Pluralizer;
 use Illuminate\Support\Str;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 
 abstract class GeneratorLarapiTemplateCommnad extends GeneratorCommand
 {
@@ -18,41 +19,53 @@ abstract class GeneratorLarapiTemplateCommnad extends GeneratorCommand
      */
     public function handle()
     {
-        if (str_word_count($this->getNameInput()) > 1) {
-            $this->components->error('The name of the resource cannot contain more than one word');
+        $nameInput = rtrim($this->getNameInput(), '/\\');
+
+
+        if ($this->isReservedName($nameInput)) {
+            $this->components->error('The name "' . $nameInput . '" is reserved by PHP.');
 
             return false;
         }
 
-        if (strpos($this->getNameInput(), '/') !== false) {
-            $this->components->error('The name of the resource cannot contain the "/" character');
+        $nameInputArray = preg_split("#[\\\\/]+#", $nameInput);
+
+        $wordCount = count($nameInputArray);
+
+        if ($wordCount > 2) {
+            $this->components->error('The name "' . $nameInput . '" is invalid. Please use the format "Directory\\ClassName" or "ClassName".');
 
             return false;
         }
 
-        parent::handle();
-    }
+        if ($wordCount == 1) {
+            $nameInput = $nameInputArray[0] . '\\' . Pluralizer::singular($nameInputArray[0]);
+        }
 
-    /**
-     * Get the console command arguments.
-     *
-     * @return array
-     */
-    protected function getArguments()
-    {
-        return [
-            ['name', InputArgument::REQUIRED, 'The name of the resource'],
-        ];
-    }
+        $name = $this->qualifyClass($nameInput);
 
-    /**
-     * Get the desired class name from the input.
-     *
-     * @return string
-     */
-    protected function getNameInput()
-    {
-        return $this->getPluralCapitalizeWord(trim($this->argument('name')));
+        $path = $this->getPath($name);
+
+        if ((!$this->hasOption('force') ||
+                !$this->option('force')) &&
+            $this->alreadyExists($nameInput)
+        ) {
+            $this->components->error($this->type . ' already exists.');
+
+            if ($this->type == 'routes') {
+                $this->components->info('Add the route manually to the file "' . $path . '"');
+            }
+
+            return false;
+        }
+
+        $this->makeDirectory($path);
+
+        $this->files->put($path, $this->sortImports($this->buildClass($name)));
+
+        $info = $this->type;
+
+        $this->components->info(sprintf('%s [%s] created successfully.', $info, $path));
     }
 
     /**
@@ -65,9 +78,17 @@ abstract class GeneratorLarapiTemplateCommnad extends GeneratorCommand
     {
         $name = Str::replaceFirst($this->rootNamespace(), '', $name);
 
-        $directory = $this->getPluralCapitalizeWord($this->type);
+        $names = preg_split("#[\\\\/]+#", $name);
 
-        return $this->laravel->basePath() . "\\api\\$name\\$directory\\" . $this->getFileName($name);
+        $rootDirectory = $names[0];
+
+        $name = $names[1];
+
+        $directory = $this->getPluralCapitalize($this->type);
+
+        $path = $this->laravel->basePath() . "\\api\\$rootDirectory\\$directory\\" . $this->getFileName($name);
+
+        return $path;
     }
 
     /**
@@ -78,9 +99,7 @@ abstract class GeneratorLarapiTemplateCommnad extends GeneratorCommand
      */
     protected function getFileName($name)
     {
-        $nameSingular = $this->getSingularCapitalizeWord($name);
-
-        return str_replace('\\', '/', $nameSingular) . "$this->type.php";
+        return str_replace('\\', '/', $name) . $this->getSingularCapitalize($this->type) . '.php';
     }
 
     /**
@@ -99,26 +118,30 @@ abstract class GeneratorLarapiTemplateCommnad extends GeneratorCommand
     /**
      * Replace the class name for the given stub.
      *
-     * @param  string  $stub
+     * @param  string  $stubdd
      * @param  string  $name
      * @return string
      */
     protected function replaceClass($stub, $name)
     {
-        $class = $this->getSingularCapitalizeWord($this->getResourceName($name)) . $this->type;
+        $class = $this->getResourceName($name) . $this->getSingularCapitalize($this->type);
 
         return str_replace(['{{ class }}', '{{class}}'], $class, $stub);
     }
 
     /**
-     * Get the full namespace for a given class, without the class name.
+     * Build the class with the given name.
      *
      * @param  string  $name
      * @return string
+     *
+     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
      */
-    protected function getNamespace($name)
+    protected function buildClass($name)
     {
-        return $name;
+        $stub = $this->files->get($this->getStub());
+
+        return $this->replaceNamespace($stub, $name)->replaceClass($stub, $name);
     }
 
     /**
@@ -128,7 +151,7 @@ abstract class GeneratorLarapiTemplateCommnad extends GeneratorCommand
      */
     protected function getResourceName($name)
     {
-        return str_replace($this->rootNamespace(), '', $this->getNamespace($name));
+        return trim(str_replace($this->getNamespace($name), '', $name), '\\');
     }
 
     /**
@@ -142,12 +165,24 @@ abstract class GeneratorLarapiTemplateCommnad extends GeneratorCommand
     }
 
     /**
+     * Get the console command options.
+     *
+     * @return array
+     */
+    protected function getOptions()
+    {
+        return [
+            ['force', null, InputOption::VALUE_NONE, 'Create the class even if the controller already exists'],
+        ];
+    }
+
+    /**
      * Return the Singular Capitalize Word
      *
      * @param $word
      * @return string
      */
-    public function getSingularCapitalizeWord($word)
+    public function getSingularCapitalize($word)
     {
         return ucfirst(Pluralizer::singular($word));
     }
@@ -158,7 +193,7 @@ abstract class GeneratorLarapiTemplateCommnad extends GeneratorCommand
      * @param $word
      * @return string
      */
-    public function getPluralCapitalizeWord($word)
+    public function getPluralCapitalize($word)
     {
         return ucfirst(Pluralizer::plural($word));
     }

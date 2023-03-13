@@ -66,7 +66,11 @@ class RoutesLarapiTemplateMakeCommand extends GeneratorLarapiTemplateCommnad
     {
         $name = Str::replaceFirst($this->rootNamespace(), '', $name);
 
-        return $this->laravel->basePath() . "\\api\\$name\\" . $this->getFileName($name);
+        $names = preg_split("#[\\\\/]+#", $name);
+
+        $rootDirectory = $names[0];
+
+        return $this->laravel->basePath() . "\\api\\$rootDirectory\\" . $this->getFileName($name);
     }
 
     /**
@@ -93,12 +97,11 @@ class RoutesLarapiTemplateMakeCommand extends GeneratorLarapiTemplateCommnad
         $replace = [];
 
         $resourceName = $this->getResourceName($name);
-        $resourceNameSingular = $this->getSingularCapitalizeWord($resourceName);
+
         $routeName = strtolower(Pluralizer::plural($resourceName));
 
-
-        $replace['{{ resourceNameSingular }}'] = $resourceNameSingular;
-        $replace['{{resourceNameSingular}}'] = $resourceNameSingular;
+        $replace['{{ resourceName }}'] = $resourceName;
+        $replace['{{resourceName}}'] = $resourceName;
         $replace['{{ routeName }}'] = $routeName;
         $replace['{{routeName}}'] = $routeName;
 
