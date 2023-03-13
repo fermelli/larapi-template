@@ -1,0 +1,15 @@
+<?php
+
+namespace {{ namespace }}\Requests;
+
+use App\Abstracts\ApiRequest;
+
+class {{ class }} extends ApiRequest
+{
+    public function rules()
+    {
+        return [
+            //
+        ];
+    }
+}

@@ -1,0 +1,18 @@
+<?php
+
+namespace {{ namespace }}\Models;
+
+use App\Abstracts\ModelPivot;
+
+class {{ class }} extends ModelPivot
+{
+    protected $table = '{{ tableName }}';
+
+    protected $fillable = [
+        //
+    ];
+
+    protected $hidden = [
+        //
+    ];
+}

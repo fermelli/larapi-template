@@ -1,0 +1,18 @@
+<?php
+
+namespace {{ namespace }}\Models;
+
+use App\Abstracts\Model;
+
+class {{ class }} extends Model
+{
+    protected $table = '{{ tableName }}';
+
+    protected $fillable = [
+        //
+    ];
+
+    protected $hidden = [
+        //
+    ];
+}

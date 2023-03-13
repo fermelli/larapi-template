@@ -1,0 +1,64 @@
+<?php
+
+namespace {{ namespace }}\Services;
+
+use {{ namespace }}\Exceptions\{{ resourceName }}NoEncontradoException;
+use {{ namespace }}\Repositories\{{ resourceName }}Repository;
+
+class {{ class }}
+{
+    private {{ resourceName }}Repository ${{ partialVariableName }}Repository;
+
+    public function __construct({{ resourceName }}Repository ${{ partialVariableName }}Repository)
+    {
+        $this->{{ partialVariableName }}Repository = ${{ partialVariableName }}Repository;
+    }
+
+    public function obtenerTodos($options = [])
+    {
+        return $this->{{ partialVariableName }}Repository->getWithCount($options);
+    }
+
+    public function obtenerPorId(${{ partialVariableName }}Id, array $options = [])
+    {
+        ${{ partialVariableName }} = $this->obtener{{ resourceName }}Solicitado(${{ partialVariableName }}Id, $options);
+
+        return ${{ partialVariableName }};
+    }
+
+    public function crear($data)
+    {
+        ${{ partialVariableName }} = $this->{{ partialVariableName }}Repository->create($data);
+
+        return ${{ partialVariableName }};
+    }
+
+    public function actualizar(${{ partialVariableName }}Id, array $data)
+    {
+        ${{ partialVariableName }} = $this->obtener{{ resourceName }}Solicitado(${{ partialVariableName }}Id);
+
+        ${{ partialVariableName }} = $this->{{ partialVariableName }}Repository->update(${{ partialVariableName }}, $data);
+
+        return ${{ partialVariableName }};
+    }
+
+    public function eliminar(${{ partialVariableName }}Id)
+    {
+        ${{ partialVariableName }} = $this->obtener{{ resourceName }}Solicitado(${{ partialVariableName }}Id, ['select' => ['id']]);
+
+        $this->{{ partialVariableName }}Repository->delete(${{ partialVariableName }}Id);
+
+        return ${{ partialVariableName }};
+    }
+
+    private function obtener{{ resourceName }}Solicitado(${{ partialVariableName }}Id, array $options = [])
+    {
+        ${{ partialVariableName }} = $this->{{ partialVariableName }}Repository->getById(${{ partialVariableName }}Id, $options);
+
+        if (is_null(${{ partialVariableName }})) {
+            throw new {{ resourceName }}NoEncontradoException;
+        }
+
+        return ${{ partialVariableName }};
+    }
+}

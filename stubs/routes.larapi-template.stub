@@ -1,0 +1,7 @@
+<?php
+
+/** @var \Illuminate\Routing\Router $router */
+
+use {{ namespace }}\Controllers\{{ resourceName }}Controller;
+
+$router->apiResource('{{ routeName }}', {{ resourceName }}Controller::class);
