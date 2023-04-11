@@ -28,4 +28,34 @@ abstract class Repository extends BaseRepository
 
         return $query;
     }
+
+    /**
+     * Force delete a resource by its primary key.
+     *
+     * @param  mixed  $id
+     *
+     * @return void
+     */
+    public function forceDelete($id)
+    {
+        $query = $this->createQueryBuilder();
+
+        $query->where($this->getPrimaryKey($query), $id);
+        $query->forceDelete();
+    }
+
+    /**
+     * Restore a resource by its primary key.
+     *
+     * @param  mixed  $id
+     *
+     * @return void
+     */
+    public function restore($id)
+    {
+        $query = $this->createQueryBuilder();
+
+        $query->where($this->getPrimaryKey($query), $id);
+        $query->restore();
+    }
 }
