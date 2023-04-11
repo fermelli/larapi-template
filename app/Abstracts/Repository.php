@@ -58,4 +58,36 @@ abstract class Repository extends BaseRepository
         $query->where($this->getPrimaryKey($query), $id);
         $query->restore();
     }
+
+    /**
+     * Get all resources with pagination.
+     *
+     * @param  array  $options
+     *
+     * @return array
+     */
+    public function getWithPagination(array $options = [])
+    {
+        $query = $this->createBaseBuilder($options);
+
+        $totalData = $this->countRows($query);
+        $allRows = $query->get();
+
+        $this->appendAttributes($allRows, $options);
+
+        $data = ['rows' => $allRows, 'total_data' => $totalData];
+
+        if (isset($options['page']) && $options['page'] && isset($options['limit']) && $options['limit']) {
+            $page = intval($options['page']);
+            $limit = intval($options['limit']);
+
+            $data['page'] = $page;
+            $data['limit'] = $limit;
+            $data['from'] = ($page - 1) * $limit + 1;
+            $data['to'] = $totalData % $limit == 0 ? $page * $limit : ($page - 1) * $limit + $totalData % $limit;
+            $data['last_page'] = ceil($totalData / $limit);
+        }
+
+        return $data;
+    }
 }

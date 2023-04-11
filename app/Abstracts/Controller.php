@@ -12,4 +12,14 @@ class Controller extends LaravelController
     use AuthorizesRequests;
     use DispatchesJobs;
     use ValidatesRequests;
+
+    /**
+     * Defaults.
+     *
+     * @var array
+     */
+    protected $defaults = [
+        'page' => 1,
+        'limit' => 10,
+    ];
 }
