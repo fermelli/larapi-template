@@ -56,7 +56,7 @@ class {{ class }}
         ${{ partialVariableName }} = $this->{{ partialVariableName }}Repository->getById(${{ partialVariableName }}Id, $options);
 
         if (is_null(${{ partialVariableName }})) {
-            throw new {{ resourceName }}NoEncontradoException;
+            throw new {{ resourceName }}NoEncontradoException();
         }
 
         return ${{ partialVariableName }};

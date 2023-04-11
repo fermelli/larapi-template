@@ -56,7 +56,7 @@ class UsuarioService
         $usuario = $this->usuarioRepository->getById($usuarioId, $options);
 
         if (is_null($usuario)) {
-            throw new UsuarioNoEncontradoException;
+            throw new UsuarioNoEncontradoException();
         }
 
         return $usuario;

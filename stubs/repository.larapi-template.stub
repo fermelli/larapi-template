@@ -20,7 +20,7 @@ class {{ class }} extends Repository
 
         ${{ partialVariableName }}->save();
 
-        return  ${{ partialVariableName }};
+        return ${{ partialVariableName }};
     }
 
     public function update({{ resourceName }}  ${{ partialVariableName }}, array $data)
@@ -29,6 +29,6 @@ class {{ class }} extends Repository
 
         ${{ partialVariableName }}->save();
 
-        return  ${{ partialVariableName }};
+        return ${{ partialVariableName }};
     }
 }

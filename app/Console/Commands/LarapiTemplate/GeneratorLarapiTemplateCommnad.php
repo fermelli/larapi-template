@@ -5,7 +5,6 @@ namespace App\Console\Commands\LarapiTemplate;
 use Illuminate\Console\GeneratorCommand;
 use Illuminate\Support\Pluralizer;
 use Illuminate\Support\Str;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
 abstract class GeneratorLarapiTemplateCommnad extends GeneratorCommand
@@ -28,7 +27,7 @@ abstract class GeneratorLarapiTemplateCommnad extends GeneratorCommand
             return false;
         }
 
-        $nameInputArray = preg_split("#[\\\\/]+#", $nameInput);
+        $nameInputArray = preg_split('#[\\\\/]+#', $nameInput);
 
         $wordCount = count($nameInputArray);
 
@@ -78,7 +77,7 @@ abstract class GeneratorLarapiTemplateCommnad extends GeneratorCommand
     {
         $name = Str::replaceFirst($this->rootNamespace(), '', $name);
 
-        $names = preg_split("#[\\\\/]+#", $name);
+        $names = preg_split('#[\\\\/]+#', $name);
 
         $rootDirectory = $names[0];
 

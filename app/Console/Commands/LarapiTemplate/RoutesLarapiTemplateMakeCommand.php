@@ -66,7 +66,7 @@ class RoutesLarapiTemplateMakeCommand extends GeneratorLarapiTemplateCommnad
     {
         $name = Str::replaceFirst($this->rootNamespace(), '', $name);
 
-        $names = preg_split("#[\\\\/]+#", $name);
+        $names = preg_split('#[\\\\/]+#', $name);
 
         $rootDirectory = $names[0];
 

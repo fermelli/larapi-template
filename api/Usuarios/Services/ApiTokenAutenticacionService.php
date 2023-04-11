@@ -21,7 +21,7 @@ class ApiTokenAutenticacionService
         $usuario = $this->usuarioRepository->getWhere('email', $email)->first();
 
         if (is_null($usuario) || !Hash::check($password, $usuario->password)) {
-            throw new CredencialesInvalidasException;
+            throw new CredencialesInvalidasException();
         }
 
         $token = $usuario->createToken($email);
@@ -36,7 +36,11 @@ class ApiTokenAutenticacionService
 
     public function logout()
     {
-        /** @var \Illuminate\Foundation\Auth\User $usuarioAutenticado */
+        /**
+         * Variable for authenticated user
+         *
+         * @var \Illuminate\Foundation\Auth\User $usuarioAutenticado
+         * */
         $usuarioAutenticado = Auth::user();
 
         if (!is_null($usuarioAutenticado)) {

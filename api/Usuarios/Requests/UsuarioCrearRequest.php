@@ -12,13 +12,13 @@ class UsuarioCrearRequest extends ApiRequest
             'name' => [
                 'required',
                 'string',
-                'max:255'
+                'max:255',
             ],
             'email' => [
                 'required',
                 'unique:usuarios',
                 'email',
-                'max:255'
+                'max:255',
             ],
             'password' => [
                 'required',
@@ -28,8 +28,8 @@ class UsuarioCrearRequest extends ApiRequest
                 'confirmed',
             ],
             'password_confirmation' => [
-                'required_with:password'
-            ]
+                'required_with:password',
+            ],
         ];
     }
 }

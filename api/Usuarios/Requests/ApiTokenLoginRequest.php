@@ -3,7 +3,6 @@
 namespace Api\Usuarios\Requests;
 
 use App\Abstracts\ApiRequest;
-use Illuminate\Validation\Rules\Password;
 
 class ApiTokenLoginRequest extends ApiRequest
 {
